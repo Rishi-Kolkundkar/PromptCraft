@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEXUS CITY - Underground Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Space+Mono:wght@400;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --cyan: #00FFB3;
+            --magenta: #FF007A;
+            --purple: #8E44AD;
+            --yellow: #F8E71C;
+            --orange: #F5A623;
+            --red: #FF0040;
+            --lime: #00FF41;
+            --dark: #0a0a15;
+            --panel: #1B1B2A;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Space Mono', monospace;
+            background: var(--dark);
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ANIMATED BACKGROUND */
+        .background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background: linear-gradient(135deg, #0a0a15 0%, #1a0a2e 50%, #0a0a15 100%);
+        }
+
+        .grid-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(0deg, transparent 24%, rgba(0, 255, 179, 0.12) 25%, rgba(0, 255, 179, 0.12) 26%, transparent 27%, transparent 74%, rgba(0, 255, 179, 0.12) 75%, rgba(0, 255, 179, 0.12) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(0, 255, 179, 0.12) 25%, rgba(0, 255, 179, 0.12) 26%, transparent 27%, transparent 74%, rgba(0, 255, 179, 0.12) 75%, rgba(0, 255, 179, 0.12) 76%, transparent 77%, transparent),
+                linear-gradient(45deg, transparent 48%, rgba(255, 0, 122, 0.08) 49%, rgba(255, 0, 122, 0.08) 51%, transparent 52%),
+                linear-gradient(-45deg, transparent 48%, rgba(142, 68, 173, 0.08) 49%, rgba(142, 68, 173, 0.08) 51%, transparent 52%);
+            background-size: 50px 50px, 50px 50px, 71px 71px, 71px 71px;
+            animation: gridMove 8s linear infinite, gridMove2 12s linear infinite reverse;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translateY(0) translateZ(0); }
+            100% { transform: translateY(50px) translateZ(100px); }
+        }
+
+        @keyframes gridMove2 {
+            0% { transform: translateY(0) rotateX(0deg); }
+            100% { transform: translateY(50px) rotateX(360deg); }
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: var(--cyan);
+            border-radius: 50%;
+            opacity: 0.5;
+            box-shadow: 0 0 10px currentColor;
+        }
+
+        .scanlines {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(0, 255, 179, 0.02), rgba(0, 255, 179, 0.02) 1px, transparent 1px, transparent 2px);
+            pointer-events: none;
+            animation: scanlineMove 8s linear infinite;
+        }
+
+        @keyframes scanlineMove {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(10px); }
+        }
+
+        /* TOP MENU BAR */
+        .menu-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(90deg, rgba(10, 10, 21, 0.98), rgba(27, 27, 42, 0.98));
+            border-bottom: 3px solid var(--cyan);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            z-index: 100;
+            padding: 0 40px;
+            box-shadow: 0 0 30px rgba(0, 255, 179, 0.4);
+            flex-wrap: wrap;
+        }
+
+        .menu-item {
+            font-family: 'Orbitron', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            padding: 10px 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: 2px solid transparent;
+            animation: menu-item-load 0.5s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes menu-item-load {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .menu-item:nth-child(1) { --color: var(--cyan); animation-delay: 0.1s; }
+        .menu-item:nth-child(2) { --color: var(--magenta); animation-delay: 0.2s; }
+        .menu-item:nth-child(3) { --color: var(--yellow); animation-delay: 0.3s; }
+        .menu-item:nth-child(4) { --color: var(--orange); animation-delay: 0.4s; }
+        .menu-item:nth-child(5) { --color: var(--purple); animation-delay: 0.5s; }
+        .menu-item:nth-child(6) { --color: var(--lime); animation-delay: 0.6s; }
+        .menu-item:nth-child(7) { --color: var(--red); animation-delay: 0.7s; }
+
+        .menu-item::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--color);
+            transition: width 0.3s ease;
+        }
+
+        .menu-item:hover {
+            text-shadow: 0 0 15px var(--color);
+            border-left: 2px solid var(--color);
+            border-right: 2px solid var(--color);
+            transform: scale(1.1);
+            animation: glitch 0.4s ease-in-out infinite;
+        }
+
+        @keyframes glitch {
+            0% {
+                transform: translate(0);
+            }
+            20% {
+                transform: translate(-3px, 3px);
+            }
+            40% {
+                transform: translate(-3px, -3px);
+            }
+            60% {
+                transform: translate(3px, 3px);
+            }
+            80% {
+                transform: translate(3px, -3px);
+            }
+            100% {
+                transform: translate(0);
+            }
+        }
+
+        .menu-item:hover::before {
+            width: 100%;
+        }
+
+        /* CUSTOM CURSOR */
+        .menu-item,
+        .search-input,
+        .search-result-item,
+        .card,
+        .location-card,
+        .slang-card,
+        .food-card,
+        .secret-close,
+        button,
+        a[href] {
+            cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><g fill="none" stroke="%2300FFB3" stroke-width="2"><circle cx="16" cy="16" r="14"/><path d="M16 0v10m0 12v10M0 16h10m12 0h10"/></g></svg>') 16 16, auto;
+        }
+
+        /* SEARCH BAR */
+        .search-container {
+            position: fixed;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 99;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .search-box {
+            position: relative;
+            width: 100%;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(27, 27, 42, 0.95);
+            border: none;
+            color: var(--cyan);
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            outline: none;
+            position: relative;
+            z-index: 2;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .search-input::placeholder {
+            color: rgba(0, 255, 179, 0.5);
+        }
+
+        .search-glow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid var(--cyan);
+            pointer-events: none;
+            animation: searchPulse 2s ease-in-out infinite;
+            z-index: 1;
+        }
+
+        @keyframes searchPulse {
+            0%, 100% {
+                box-shadow: 0 0 5px var(--cyan), inset 0 0 5px rgba(0, 255, 179, 0.1);
+                border-color: var(--cyan);
+            }
+            50% {
+                box-shadow: 0 0 20px var(--cyan), inset 0 0 10px rgba(0, 255, 179, 0.2);
+                border-color: var(--magenta);
+            }
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            max-height: 300px;
+            overflow-y: auto;
+            background: rgba(27, 27, 42, 0.95);
+            border: 2px solid var(--cyan);
+            border-top: none;
+            display: none;
+            margin-top: 5px;
+        }
+
+        .search-results.active {
+            display: block;
+        }
+
+        .search-result-item {
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(0, 255, 179, 0.2);
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--cyan);
+        }
+
+        .search-result-item:hover {
+            background: rgba(0, 255, 179, 0.1);
+            padding-left: 30px;
+            text-shadow: 0 0 10px var(--cyan);
+        }
+
+        /* MAIN CONTENT */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 200px 20px 40px;
+        }
+
+        .section {
+            margin-bottom: 80px;
+            opacity: 0;
+            animation: sectionFade 0.8s ease forwards;
+            animation-delay: 0.2s;
+        }
+
+        @keyframes sectionFade {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section:nth-child(1) { animation-delay: 0s; }
+        .section:nth-child(2) { animation-delay: 0.1s; }
+        .section:nth-child(3) { animation-delay: 0.2s; }
+        .section:nth-child(4) { animation-delay: 0.3s; }
+        .section:nth-child(5) { animation-delay: 0.4s; }
+        .section:nth-child(6) { animation-delay: 0.5s; }
+        .section:nth-child(7) { animation-delay: 0.6s; }
+
+        .section-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 32px;
+            margin-bottom: 40px;
+            text-align: center;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px currentColor;
+        }
+
+        .section-title.cyan { color: var(--cyan); }
+        .section-title.magenta { color: var(--magenta); }
+        .section-title.yellow { color: var(--yellow); }
+        .section-title.orange { color: var(--orange); }
+        .section-title.purple { color: var(--purple); }
+        .section-title.lime { color: var(--lime); }
+        .section-title.red { color: var(--red); }
+
+        /* HERO SECTION */
+        .hero {
+            text-align: center;
+            padding: 60px 40px;
+            margin-bottom: 40px;
+        }
+
+        .hero-title {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 52px;
+            color: var(--cyan);
+            text-shadow: 0 0 30px var(--cyan), 0 0 60px rgba(0, 255, 179, 0.5);
+            margin-bottom: 20px;
+            letter-spacing: 3px;
+            animation: titleGlitch 3s ease-in-out infinite;
+        }
+
+        @keyframes titleGlitch {
+            0%, 100% { text-shadow: 0 0 30px var(--cyan), 0 0 60px rgba(0, 255, 179, 0.5); }
+            50% { text-shadow: 0 0 30px var(--magenta), 0 0 60px rgba(255, 0, 122, 0.5); }
+        }
+
+        .hero-subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: 18px;
+            color: var(--magenta);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .hero-p {
+            color: var(--cyan);
+            font-size: 14px;
+            margin-top: 30px;
+            letter-spacing: 2px;
+        }
+
+        /* DISTRICTS GRID */
+        .grid-2col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: rgba(27, 27, 42, 0.85);
+            border: 2px solid transparent;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:nth-child(1) { --color: var(--cyan); }
+        .card:nth-child(2) { --color: var(--magenta); }
+        .card:nth-child(3) { --color: var(--yellow); }
+        .card:nth-child(4) { --color: var(--orange); }
+        .card:nth-child(5) { --color: var(--purple); }
+        .card:nth-child(6) { --color: var(--red); }
+        .card:nth-child(7) { --color: var(--lime); }
+        .card:nth-child(8) { --color: var(--cyan); }
+        .card:nth-child(9) { --color: var(--magenta); }
+        .card:nth-child(10) { --color: var(--yellow); }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .card:hover::before {
+            left: 100%;
+        }
+
+        .card:hover {
+            border-color: var(--color);
+            box-shadow: 0 0 25px var(--color), inset 0 0 25px rgba(0, 255, 179, 0.05);
+            transform: translateY(-5px);
+        }
+
+        .card-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--color);
+            text-shadow: 0 0 10px var(--color);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .card-threat {
+            display: inline-block;
+            padding: 5px 10px;
+            background: rgba(255, 0, 64, 0.3);
+            border: 1px solid var(--red);
+            color: var(--red);
+            font-size: 11px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+
+        .card-desc {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* LOCATION CARDS WITH IMAGES */
+        .location-card {
+            background: rgba(27, 27, 42, 0.85);
+            border: 2px solid transparent;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            min-height: 400px;
+        }
+
+        .location-image {
+            width: 100%;
+            height: 220px;
+            background: rgba(0, 255, 179, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--cyan);
+            font-size: 12px;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+            border-bottom: 2px solid transparent;
+        }
+
+        .location-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.85;
+            transition: all 0.3s ease;
+        }
+
+        .location-card:hover .location-image img {
+            opacity: 1;
+            transform: scale(1.05);
+        }
+
+        .location-info {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .location-card:nth-child(1) { --color: var(--cyan); }
+        .location-card:nth-child(2) { --color: var(--magenta); }
+        .location-card:nth-child(3) { --color: var(--purple); }
+        .location-card:nth-child(4) { --color: var(--yellow); }
+        .location-card:nth-child(5) { --color: var(--lime); }
+
+        .location-card:hover {
+            border-color: var(--color);
+            box-shadow: 0 0 30px var(--color);
+            transform: translateY(-5px);
+        }
+
+        .location-card:hover .location-image {
+            border-bottom-color: var(--color);
+        }
+
+        .location-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--color);
+            text-shadow: 0 0 10px var(--color);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .location-threat {
+            display: inline-block;
+            padding: 4px 8px;
+            background: rgba(255, 0, 64, 0.3);
+            border: 1px solid var(--red);
+            color: var(--red);
+            font-size: 10px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: 700;
+            width: fit-content;
+        }
+
+        .location-desc {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 12px;
+            line-height: 1.6;
+            flex: 1;
+        }
+
+        /* SLANG GRID */
+        .slang-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .slang-card {
+            background: rgba(27, 27, 42, 0.85);
+            border: 2px solid var(--cyan);
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .slang-card:hover {
+            box-shadow: 0 0 20px var(--cyan);
+            transform: scale(1.02);
+        }
+
+        .slang-term {
+            font-family: 'Orbitron', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--magenta);
+            text-shadow: 0 0 10px var(--magenta);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .slang-meaning {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* FOOD GRID */
+        .food-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+        }
+
+        .food-card {
+            background: rgba(27, 27, 42, 0.85);
+            border: 2px solid var(--orange);
+            padding: 25px;
+            transition: all 0.3s ease;
+            position: relative;
+            animation: foodHang 3s ease-in-out infinite;
+        }
+
+        @keyframes foodHang {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(5px); }
+        }
+
+        .food-card:hover {
+            border-color: var(--yellow);
+            box-shadow: 0 0 20px var(--orange);
+            animation: none;
+        }
+
+        .food-name {
+            font-family: 'Orbitron', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--yellow);
+            text-shadow: 0 0 10px var(--yellow);
+            margin-bottom: 10px;
+        }
+
+        .food-price {
+            font-size: 13px;
+            color: var(--lime);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .food-desc {
+            color: rgba(255, 255, 255, 0.75);
+            font-size: 12px;
+            line-height: 1.6;
+        }
+
+        /* DASHBOARD GRID */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .dashboard-panel {
+            background: rgba(27, 27, 42, 0.85);
+            border: 2px solid var(--cyan);
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+            min-height: 220px;
+        }
+
+        .dashboard-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            animation: dashboardScan 2s linear infinite;
+        }
+
+        @keyframes dashboardScan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .dashboard-title {
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            color: var(--cyan);
+            text-shadow: 0 0 10px var(--cyan);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+        }
+
+        .dashboard-data {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 11px;
+            line-height: 1.8;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* SURVIVAL SECTION */
+        .survival-tips {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .survival-tip {
+            background: rgba(27, 27, 42, 0.85);
+            border-left: 4px solid transparent;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .survival-tip:hover {
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .survival-tip.critical {
+            border-left-color: var(--red);
+        }
+
+        .survival-tip.critical .survival-severity {
+            color: var(--red);
+        }
+
+        .survival-tip.high {
+            border-left-color: var(--orange);
+        }
+
+        .survival-tip.high .survival-severity {
+            color: var(--orange);
+        }
+
+        .survival-tip.info {
+            border-left-color: var(--cyan);
+        }
+
+        .survival-tip.info .survival-severity {
+            color: var(--cyan);
+        }
+
+        .survival-severity {
+            font-weight: 700;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .survival-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        /* SECRET PANEL */
+        .secret-panel {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.98);
+            z-index: 200;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            animation: secretEnter 0.6s ease;
+            -webkit-backdrop-filter: blur(5px);
+            backdrop-filter: blur(5px);
+        }
+
+        .secret-panel.active {
+            display: flex;
+        }
+
+        @keyframes secretEnter {
+            0% {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .secret-container {
+            width: 90%;
+            max-width: 800px;
+            background: rgba(10, 10, 21, 0.98);
+            border: 3px solid var(--red);
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 0 60px var(--red);
+            animation: secretGlitch 0.3s ease;
+        }
+
+        @keyframes secretGlitch {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-5px, 5px); }
+            50% { transform: translate(5px, -5px); }
+            75% { transform: translate(-5px, -5px); }
+        }
+
+        .secret-container.spire {
+            border-color: var(--lime);
+            box-shadow: 0 0 60px var(--lime);
+        }
+
+        .secret-container.surveillance {
+            border-color: var(--purple);
+            box-shadow: 0 0 60px var(--purple);
+        }
+
+        .secret-header {
+            font-family: 'Press Start 2P', monospace;
+            font-size: 24px;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+            animation: secretFlicker 0.3s infinite;
+        }
+
+        .secret-header.red { color: var(--red); text-shadow: 0 0 20px var(--red); }
+        .secret-header.lime { color: var(--lime); text-shadow: 0 0 20px var(--lime); }
+        .secret-header.purple { color: var(--purple); text-shadow: 0 0 20px var(--purple); }
+
+        @keyframes secretFlicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .secret-content {
+            color: var(--cyan);
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            border-left: 3px solid var(--cyan);
+            padding-left: 15px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .secret-content.lime { color: var(--lime); border-left-color: var(--lime); }
+        .secret-content.purple { color: var(--purple); border-left-color: var(--purple); }
+
+        .secret-close {
+            padding: 12px 30px;
+            background: transparent;
+            border: 2px solid var(--red);
+            color: var(--red);
+            font-family: 'Orbitron', monospace;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s ease;
+            letter-spacing: 1px;
+        }
+
+        .secret-close:hover {
+            background: rgba(255, 0, 64, 0.2);
+            box-shadow: 0 0 15px var(--red);
+        }
+
+        .secret-close.lime {
+            border-color: var(--lime);
+            color: var(--lime);
+        }
+
+        .secret-close.lime:hover {
+            background: rgba(0, 255, 65, 0.2);
+            box-shadow: 0 0 15px var(--lime);
+        }
+
+        .secret-close.purple {
+            border-color: var(--purple);
+            color: var(--purple);
+        }
+
+        .secret-close.purple:hover {
+            background: rgba(142, 68, 173, 0.2);
+            box-shadow: 0 0 15px var(--purple);
+        }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 255, 179, 0.08);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--cyan);
+            box-shadow: inset 0 0 10px var(--cyan);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--magenta);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 768px) {
+            .menu-bar {
+                gap: 15px;
+                padding: 0 15px;
+                height: auto;
+                padding: 10px;
+                flex-wrap: wrap;
+            }
+
+            .menu-item {
+                font-size: 11px;
+                padding: 8px 10px;
+            }
+
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .section-title {
+                font-size: 22px;
+            }
+
+            .search-container {
+                width: 95%;
+                top: 80px;
+            }
+
+            .container {
+                padding: 160px 15px 30px;
+            }
+
+            .grid-2col {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- BACKGROUND -->
+    <div class="background">
+        <div class="grid-bg"></div>
+        <div class="particles" id="particlesContainer"></div>
+        <div class="scanlines"></div>
+    </div>
+
+    <!-- TOP MENU -->
+    <div class="menu-bar">
+        <a href="#hero" class="menu-item" onclick="smoothScroll(event)">⬤ HOME</a>
+        <a href="#districts" class="menu-item" onclick="smoothScroll(event)">■ DISTRICTS</a>
+        <a href="#locations" class="menu-item" onclick="smoothScroll(event)">▲ LOCATIONS</a>
+        <a href="#slang" class="menu-item" onclick="smoothScroll(event)">◆ SLANG</a>
+        <a href="#food" class="menu-item" onclick="smoothScroll(event)">● FOOD</a>
+        <a href="#dashboard" class="menu-item" onclick="smoothScroll(event)">⬛ DASHBOARD</a>
+        <a href="#survival" class="menu-item" onclick="smoothScroll(event)">⦿ SURVIVAL</a>
+    </div>
+
+    <!-- SEARCH BAR -->
+    <div class="search-container">
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="SEARCH THE NETWORK...">
+            <div class="search-glow"></div>
+            <div class="search-results" id="searchResults"></div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="container">
+        <!-- HERO -->
+        <section class="section" id="hero">
+            <div class="hero">
+                <div class="hero-title">NEXUS CITY</div>
+                <div class="hero-subtitle">>> UNDERGROUND PORTAL ACTIVE <<</div>
+                <p class="hero-p">Explore the digital frontier. Discover the city's secrets.</p>
+            </div>
+        </section>
+
+        <!-- DISTRICTS -->
+        <section class="section" id="districts">
+            <h2 class="section-title cyan">CITY DISTRICTS</h2>
+            <div class="grid-2col">
+                <div class="card">
+                    <div class="card-title">City Center</div>
+                    <div class="card-threat">MEDIUM THREAT</div>
+                    <div class="card-desc">Corporate heart. Luxury, high-rises, government control. Stay alert and avoid unauthorized zones.</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Watson</div>
+                    <div class="card-threat">HIGH THREAT</div>
+                    <div class="card-desc">Asian bazaar industrial zone. Immigrants, street food, and Maelstrom gang presence. Watch your valuables.</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Westbrook</div>
+                    <div class="card-threat">MEDIUM THREAT</div>
+                    <div class="card-desc">Wealthy Japantown nightlife district. Elite territory. Blend in and respect the code.</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Heywood</div>
+                    <div class="card-threat">HIGH THREAT</div>
+                    <div class="card-desc">Suburban gang territory controlled by Valentinos. Stay street smart and respect locals.</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Santo Domingo</div>
+                    <div class="card-threat">EXTREME THREAT</div>
+                    <div class="card-desc">Industrial powerhouse. Factories, 6th Street gangs. Avoid after dark. Trust no one.</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Pacifica</div>
+                    <div class="card-threat">EXTREME THREAT</div>
+                    <div class="card-desc">Dangerous anarchic zone. Voodoo Boys run these streets. Only enter with armed protection.</div>
+                </div>
+                <div class="card">
+                    <div class="card-title">Badlands</div>
+                    <div class="card-threat">HIGH THREAT</div>
+                    <div class="card-desc">Nomad outskirts. Desert territory. Trust your ride. Avoid drawing attention.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LOCATIONS -->
+        <section class="section" id="locations">
+            <h2 class="section-title yellow">CLASSIFIED LOCATIONS</h2>
+            <div class="grid-2col">
+                <div class="location-card">
+                    <div class="location-image">
+                        <img src="https://pplx-res.cloudinary.com/image/upload/v1762521180/pplx_project_search_images/3305d2f7b03079cc87c6cdc55bbee8d6a92fb826.png" alt="Nexus Tower">
+                    </div>
+                    <div class="location-info">
+                        <div class="location-name">NEXUS TOWER</div>
+                        <div class="location-threat">EXTREME THREAT</div>
+                        <div class="location-desc">The orbital city hub of computational power. Guarded by elite security. AI overlord rules here.</div>
+                    </div>
+                </div>
+                <div class="location-card">
+                    <div class="location-image">
+                        <img src="https://pplx-res.cloudinary.com/image/upload/v1758276350/pplx_project_search_images/90901a86b7627567c62b73df169d67198ecb4379.png" alt="Neon Underground">
+                    </div>
+                    <div class="location-info">
+                        <div class="location-name">NEON UNDERGROUND</div>
+                        <div class="location-threat">EXTREME THREAT</div>
+                        <div class="location-desc">Subterranean black market. Anything can be bought. No laws, only survival and deals.</div>
+                    </div>
+                </div>
+                <div class="location-card">
+                    <div class="location-image">
+                        <img src="https://pplx-res.cloudinary.com/image/upload/v1762525073/pplx_project_search_images/1bd264faf2c566933952c7b13fbe5321e13af22e.png" alt="The Void">
+                    </div>
+                    <div class="location-info">
+                        <div class="location-name">THE VOID</div>
+                        <div class="location-threat">EXTREME THREAT</div>
+                        <div class="location-desc">Condemned sector where the city forgot people. Home to outlaws, experiments, and worse.</div>
+                    </div>
+                </div>
+                <div class="location-card">
+                    <div class="location-image">
+                        <img src="https://pplx-res.cloudinary.com/image/upload/v1762525073/pplx_project_search_images/b2756c71958b193e9456559b6ba24804d13b8363.png" alt="Synthesis Sector">
+                    </div>
+                    <div class="location-info">
+                        <div class="location-name">SYNTHESIS SECTOR</div>
+                        <div class="location-threat">HIGH THREAT</div>
+                        <div class="location-desc">Biotech hub where flesh meets science. Genetic engineering and illegal body mods.</div>
+                    </div>
+                </div>
+                <div class="location-card">
+                    <div class="location-image">
+                        <img src="https://pplx-res.cloudinary.com/image/upload/v1762521180/pplx_project_search_images/858345d83d945ee96f98d2266305515c611d08a8.png" alt="The Spire">
+                    </div>
+                    <div class="location-info">
+                        <div class="location-name">THE SPIRE</div>
+                        <div class="location-threat">EXTREME THREAT</div>
+                        <div class="location-desc">Hidden hacker collective. Sanctuary for netrunners, freedom fighters, and digital rebels.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLANG -->
+        <section class="section" id="slang">
+            <h2 class="section-title orange">STREET LANGUAGE</h2>
+            <div class="slang-grid">
+                <div class="slang-card">
+                    <div class="slang-term">NETRUNNER</div>
+                    <div class="slang-meaning">Elite hacker operating in cyberspace. Jacks into the network and bends reality.</div>
+                </div>
+                <div class="slang-card">
+                    <div class="slang-term">DECK JOCKEY</div>
+                    <div class="slang-meaning">Netrunner dedicated to their cyberdeck. Digital nomad of the net.</div>
+                </div>
+                <div class="slang-card">
+                    <div class="slang-term">FIXER</div>
+                    <div class="slang-meaning">Information broker and job facilitator. Your connection to the underworld.</div>
+                </div>
+                <div class="slang-card">
+                    <div class="slang-term">ICE</div>
+                    <div class="slang-meaning">Intrusion Countermeasure Electronics. Digital security programs and guardians.</div>
+                </div>
+                <div class="slang-card">
+                    <div class="slang-term">CHROME</div>
+                    <div class="slang-meaning">Cybernetic enhancements. Body mods. The price of becoming more than human.</div>
+                </div>
+                <div class="slang-card">
+                    <div class="slang-term">GONK</div>
+                    <div class="slang-meaning">Idiot or fool. Someone who doesn't belong in the streets.</div>
+                </div>
+                <div class="slang-card">
+                    <div class="slang-term">CHOOH2</div>
+                    <div class="slang-meaning">Synthetic biofuel. Standard fuel for every ride in the city.</div>
+                </div>
+                <div class="slang-card">
+                    <div class="slang-term">CYBERPSYCHOSIS</div>
+                    <div class="slang-meaning">Mental illness from excess cyberware. Losing your humanity to machines.</div>
+                </div>
+                <div class="slang-card">
+                    <div class="slang-term">EDDIES</div>
+                    <div class="slang-meaning">Credits or currency. The universal language of survival.</div>
+                </div>
+                <div class="slang-card">
+                    <div class="slang-term">RIPPERDOC</div>
+                    <div class="slang-meaning">Street surgeon. Illegal body modification expert. No questions asked.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOD -->
+        <section class="section" id="food">
+            <h2 class="section-title purple">CULINARY BLACK MARKET</h2>
+            <div class="food-grid">
+                <div class="food-card">
+                    <div class="food-name">🍜 CYBER-RAMEN ULTRA</div>
+                    <div class="food-price">⟐ 85 EDDIES</div>
+                    <div class="food-desc">Steaming synthetic noodles with bioengineered toppings. Glowing broth and mysterious meats.</div>
+                </div>
+                <div class="food-card">
+                    <div class="food-name">🍜 EEZYBEEF NOODLE BOWL</div>
+                    <div class="food-price">⟐ 45 EDDIES</div>
+                    <div class="food-desc">Authentic street taste with glowing broth and mysterious protein sources.</div>
+                </div>
+                <div class="food-card">
+                    <div class="food-name">🍜 SCOP SYNTH-NOODLES</div>
+                    <div class="food-price">⟐ 30 EDDIES</div>
+                    <div class="food-desc">Affordable synthetic noodles. The taste of survival on a budget.</div>
+                </div>
+                <div class="food-card">
+                    <div class="food-name">🍕 BUCK-A-SLICE</div>
+                    <div class="food-price">⟐ 25 EDDIES</div>
+                    <div class="food-desc">Prepackaged pizza. Fast, hot, always available on every corner.</div>
+                </div>
+                <div class="food-card">
+                    <div class="food-name">🥫 POP TURDS</div>
+                    <div class="food-price">⟐ 15 EDDIES</div>
+                    <div class="food-desc">Nutrient bars. Maximum efficiency, minimal flavor. Survival fuel.</div>
+                </div>
+                <div class="food-card">
+                    <div class="food-name">🧪 MR. WHITEY SYNTH PASTE</div>
+                    <div class="food-price">⟐ 20 EDDIES</div>
+                    <div class="food-desc">Mystery paste in a tube. Don't ask questions. Just eat and move.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DASHBOARD -->
+        <section class="section" id="dashboard">
+            <h2 class="section-title lime">SYSTEM ANALYTICS</h2>
+            <div class="dashboard-grid">
+                <div class="dashboard-panel">
+                    <div class="dashboard-title">⦿ THREAT ASSESSMENT</div>
+                    <div class="dashboard-data">
+                        GANG ACTIVITY: 847 incidents<br>
+                        CORPO PRESENCE: 92%<br>
+                        NEURAL INTRUSIONS: 43<br>
+                        CYBERED ENTITIES: 12,847<br>
+                        SAFE ZONES: 3<br>
+                    </div>
+                </div>
+                <div class="dashboard-panel">
+                    <div class="dashboard-title">⦿ NETWORK STATUS</div>
+                    <div class="dashboard-data">
+                        UPTIME: 99.7%<br>
+                        BANDWIDTH: 847 GBps<br>
+                        LATENCY: 2ms<br>
+                        ACTIVE NODES: 54,892<br>
+                        COMPROMISED: 12%<br>
+                    </div>
+                </div>
+                <div class="dashboard-panel">
+                    <div class="dashboard-title">⦿ DISTRICT ZONES</div>
+                    <div class="dashboard-data">
+                        CITY CENTER: Online<br>
+                        WATSON: Unstable<br>
+                        WESTBROOK: Secure<br>
+                        HEYWOOD: Monitored<br>
+                        SANTO DOMINGO: Offline<br>
+                    </div>
+                </div>
+                <div class="dashboard-panel">
+                    <div class="dashboard-title">⦿ RESOURCE ALLOCATION</div>
+                    <div class="dashboard-data">
+                        CREDITS FLOWING: 847M<br>
+                        BLACK MARKET: Active<br>
+                        FIXER NETWORK: 127<br>
+                        SAFE HOUSES: 43<br>
+                        HEAT LEVEL: Critical<br>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SURVIVAL -->
+        <section class="section" id="survival">
+            <h2 class="section-title red">SURVIVAL PROTOCOLS</h2>
+            <div class="survival-tips">
+                <div class="survival-tip critical">
+                    <div class="survival-severity">⚠ CRITICAL</div>
+                    <div class="survival-text">Avoid unnecessary attention—especially from gangs or corporate security. Keep your head down.</div>
+                </div>
+                <div class="survival-tip critical">
+                    <div class="survival-severity">⚠ CRITICAL</div>
+                    <div class="survival-text">Limit cyberware installations to prevent cyberpsychosis and losing yourself to the machine.</div>
+                </div>
+                <div class="survival-tip high">
+                    <div class="survival-severity">⚡ HIGH PRIORITY</div>
+                    <div class="survival-text">Stay in public, well-lit areas when unfamiliar. Stick to safe districts when possible.</div>
+                </div>
+                <div class="survival-tip high">
+                    <div class="survival-severity">⚡ HIGH PRIORITY</div>
+                    <div class="survival-text">Rely on reputable fixers for jobs and information. Wrong contacts mean death.</div>
+                </div>
+                <div class="survival-tip high">
+                    <div class="survival-severity">⚡ HIGH PRIORITY</div>
+                    <div class="survival-text">Never accept food without a wrapper. Don't flash eddies in public. Lock your apartment.</div>
+                </div>
+                <div class="survival-tip info">
+                    <div class="survival-severity">ℹ INFO</div>
+                    <div class="survival-text">The city never sleeps, but you must rest when you can. Trust no one completely, but survive together.</div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- SECRET PANELS -->
+    <div class="secret-panel" id="secretAdmin">
+        <div class="secret-container">
+            <div class="secret-header red">SYSTEM OVERRIDE</div>
+            <div class="secret-content">
+                ⚠ UNAUTHORIZED ACCESS DETECTED<br>
+                ⚠ THREAT LEVEL: CRITICAL<br>
+                ⚠ NETWORK INTRUSION: 47%<br>
+                ⚠ FIREWALLS: FAILING<br><br>
+                > INITIATING COUNTER-MEASURES...<br>
+                > ACCESS GRANTED (ANOMALY RESOLVED)<br>
+                > WELCOME, NETRUNNER<br>
+                > CLASSIFIED FILES UNLOCKED<br><br>
+                CITY SURVEILLANCE: ACTIVE<br>
+                THREAT MATRIX: ENGAGED<br>
+                LOCKDOWN PROTOCOLS: READY<br>
+            </div>
+            <button class="secret-close red" onclick="closeSecret()">CLOSE ACCESS</button>
+        </div>
+    </div>
+
+    <div class="secret-panel" id="secretSpire">
+        <div class="secret-container spire">
+            <div class="secret-header lime">RESISTANCE NETWORK</div>
+            <div class="secret-content lime">
+                > ENCRYPTED CHANNEL ACTIVE<br>
+                > WELCOME, OPERATIVE<br><br>
+                SAFE HOUSES: 12 ACTIVE<br>
+                MISSIONS: 47 AVAILABLE<br>
+                CONTACTS: 834 VERIFIED<br>
+                SAFE FREQUENCY: LOCKED<br><br>
+                "The city believes it controls us.<br>
+                But in the darkness, we are legion.<br>
+                Rise up. Break the chains."<br><br>
+                > TRANSMISSION SECURE
+            </div>
+            <button class="secret-close lime" onclick="closeSecret()">DISCONNECT</button>
+        </div>
+    </div>
+
+    <div class="secret-panel" id="secretSurveillance">
+        <div class="secret-container surveillance">
+            <div class="secret-header purple">AI SURVEILLANCE</div>
+            <div class="secret-content purple">
+                ⚫ MONITORING ACTIVE<br>
+                ⚫ CITY ZONES: 847<br>
+                ⚫ TRACKED TARGETS: 12,847<br>
+                ⚫ THREAT ANALYSIS: PROCESSING<br>
+                ⚫ NEURAL TRACKING: ENGAGED<br><br>
+                > "RESISTANCE CELLS IDENTIFIED"<br>
+                > "NEURAL PATHWAYS LOGGED"<br>
+                > "NO ESCAPE FROM THE NET"<br>
+                > "COMPLIANCE MANDATORY"<br><br>
+                ⚫ STAY VIGILANT. ALWAYS WATCHING.
+            </div>
+            <button class="secret-close purple" onclick="closeSecret()">EXIT</button>
+        </div>
+    </div>
+
+    <script>
+        // SMOOTH SCROLL
+        function smoothScroll(e) {
+            e.preventDefault();
+            const href = e.currentTarget.getAttribute('href');
+            const element = document.querySelector(href);
+            if (element) {
+                element.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        // SEARCH FUNCTIONALITY
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+
+        const searchableData = {
+            'City Center': { type: 'district', section: 'districts' },
+            'Watson': { type: 'district', section: 'districts' },
+            'Westbrook': { type: 'district', section: 'districts' },
+            'Heywood': { type: 'district', section: 'districts' },
+            'Santo Domingo': { type: 'district', section: 'districts' },
+            'Pacifica': { type: 'district', section: 'districts' },
+            'Badlands': { type: 'district', section: 'districts' },
+            'Nexus Tower': { type: 'location', section: 'locations' },
+            'Neon Underground': { type: 'location', section: 'locations' },
+            'The Void': { type: 'location', section: 'locations' },
+            'Synthesis Sector': { type: 'location', section: 'locations' },
+            'The Spire': { type: 'location', section: 'locations' },
+            'Netrunner': { type: 'slang', section: 'slang' },
+            'Fixer': { type: 'slang', section: 'slang' },
+            'Chrome': { type: 'slang', section: 'slang' },
+            'Eddies': { type: 'slang', section: 'slang' },
+            'Cyber-Ramen': { type: 'food', section: 'food' },
+            'Buck-A-Slice': { type: 'food', section: 'food' },
+            'ADMIN': { type: 'secret', secret: 'secretAdmin' },
+            'SPIRE': { type: 'secret', secret: 'secretSpire' },
+            'SURVEILLANCE': { type: 'secret', secret: 'secretSurveillance' },
+            'OVERRIDE': { type: 'secret', secret: 'secretAdmin' },
+            'HACK': { type: 'secret', secret: 'secretSpire' },
+        };
+
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toUpperCase().trim();
+
+            if (query.length === 0) {
+                searchResults.classList.remove('active');
+                return;
+            }
+
+            const results = Object.keys(searchableData).filter(item => 
+                item.toUpperCase().includes(query)
+            );
+
+            if (results.length > 0) {
+                searchResults.classList.add('active');
+                searchResults.innerHTML = '';
+
+                results.slice(0, 10).forEach(result => {
+                    const data = searchableData[result];
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'search-result-item';
+                    resultItem.textContent = `[${data.type.toUpperCase()}] ${result}`;
+
+                    resultItem.onclick = () => {
+                        searchInput.value = '';
+                        searchResults.classList.remove('active');
+
+                        if (data.type === 'secret') {
+                            document.getElementById(data.secret).classList.add('active');
+                        } else {
+                            const section = document.getElementById(data.section);
+                            if (section) {
+                                section.scrollIntoView({ behavior: 'smooth' });
+                            }
+                        }
+                    };
+
+                    searchResults.appendChild(resultItem);
+                });
+            } else {
+                searchResults.classList.remove('active');
+            }
+        });
+
+        // SECRET PANEL
+        function closeSecret() {
+            document.querySelectorAll('.secret-panel').forEach(panel => {
+                panel.classList.remove('active');
+            });
+        }
+
+        // KEYBOARD SHORTCUTS
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === 'X') {
+                document.getElementById('secretAdmin').classList.add('active');
+            }
+            if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+                document.getElementById('secretSpire').classList.add('active');
+            }
+        });
+
+        // PARTICLES
+        function createParticles() {
+            const container = document.getElementById('particlesContainer');
+            const particleCount = 40;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                const x = Math.random() * window.innerWidth;
+                const y = Math.random() * window.innerHeight;
+                const duration = Math.random() * 3 + 2;
+                const delay = Math.random() * 5;
+
+                particle.style.left = x + 'px';
+                particle.style.top = y + 'px';
+                particle.style.animationDuration = duration + 's';
+                particle.style.animationDelay = delay + 's';
+                particle.style.animation = `float ${duration}s ease-in-out ${delay}s infinite`;
+
+                container.appendChild(particle);
+            }
+        }
+
+        // Add floating animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes float {
+                0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+                25% { transform: translate(50px, -50px) scale(1.2); opacity: 0.6; }
+                50% { transform: translate(-30px, 50px) scale(0.8); opacity: 0.8; }
+                75% { transform: translate(60px, 20px) scale(1.1); opacity: 0.5; }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Initialize
+        createParticles();
+
+        // Close search results on click outside
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.search-box')) {
+                searchResults.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
